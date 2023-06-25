@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import requests
 from tkinter import Tk, Label, Entry, Button, StringVar, messagebox
 
@@ -19,6 +20,16 @@ def save_config(config):
         json.dump(config, f)
 
 
+def get_play_time_from_content(content):
+    playtime_pattern = re.compile(r'"playTime":\s*([\d.]+)')
+    match = playtime_pattern.search(content)
+
+    if match:
+        return float(match.group(1))
+    else:
+        return None
+
+
 def sync():
     config = load_config()
     server_url = f"http://{config['serverIP']}:{config['serverPort']}"
@@ -30,19 +41,21 @@ def sync():
         messagebox.showerror("Error", f"Failed to download save file: {e}")
         return
 
-    server_save = json.loads(response.text)
-    with open('%s.download'%(config["savePath"]), "w") as temp_file:
-        temp_file.write(response.text)
+    server_save_content = response.text
+    with open('%s.download' % (config["savePath"]), "w") as temp_file:
+        temp_file.write(server_save_content)
 
     try:
         with open(config["savePath"], "r") as f:
-            local_save = json.load(f)
+            # 将本地文件打印出来
+            local_save_content = f.read()
+
     except FileNotFoundError:
         messagebox.showerror("Error", "Local save file not found")
         return
 
-    server_play_time = server_save["playTime"]
-    local_play_time = local_save["playTime"]
+    server_play_time = get_play_time_from_content(server_save_content)
+    local_play_time = get_play_time_from_content(local_save_content)
 
     if local_play_time > server_play_time:
         messagebox.showinfo("Info", "本地存档较新，需要上传")
@@ -50,7 +63,6 @@ def sync():
         messagebox.showinfo("Info", "服务器存档较新，需要覆盖本地存档")
     else:
         messagebox.showinfo("Info", "无需任何操作")
-
 
 
 def force_upload():
@@ -74,22 +86,21 @@ def force_download():
     if messagebox.askokcancel("Warning", "确认要强制下载吗？这将覆盖本地存档。"):
         try:
             with open(config["savePath"], "r") as f:
-                local_save = json.load(f)
-                play_time = local_save["playTime"]
+                local_save_content = f.read()
+                play_time = get_play_time_from_content(local_save_content)
                 backup_path = f"{config['savePath']}.%f" % play_time
 
             with open(backup_path, "w") as backup_file:
-                json.dump(local_save, backup_file)
+                backup_file.write(local_save_content)
 
         except FileNotFoundError:
             messagebox.showerror("Error", "Local save file not found")
             return
 
-        with open('%s.download'%(config["savePath"]), "r") as temp_file, open(config["savePath"], "w") as local_file:
+        with open('%s.download' % (config["savePath"]), "r") as temp_file, open(config["savePath"], "w") as local_file:
             local_file.write(temp_file.read())
 
         messagebox.showinfo("Info", "本地存档已经同步至最新")
-
 
 
 app = Tk()
