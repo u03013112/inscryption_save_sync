@@ -4,4 +4,4 @@ services:
   inscryption_save_sync:
     image: u03013112/inscryption_save_sync:v1
     ports:
-      - "8888:8888"
+      - "443:8888"
