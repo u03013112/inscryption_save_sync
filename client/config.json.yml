@@ -1,10 +1,12 @@
 # 这只是一个模板
 # 请复制一份到 client/config.py 并修改其中的内容
 
-serverIP = ''
-serverPort = 8888
-
 # macos '~/Library/Application Support/Steam/steamapps/common/Inscryption/Inscryption.app/SaveFile.gwsave'
 # win11 'D:\Steam\steamapps\common\Inscryption\SaveFile.gwsave'
 # 请根据自己的系统修改
-savePath = ''
+
+{
+    "serverIP":"",
+    "serverPort":8888,
+    "savePath":""
+}

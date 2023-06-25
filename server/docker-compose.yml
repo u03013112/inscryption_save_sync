@@ -1,0 +1,7 @@
+version: '3.8'
+
+services:
+  save-sync-server:
+    image: u03013112/save-sync-server:v1
+    ports:
+      - "8888:8888"
