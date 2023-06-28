@@ -58,9 +58,11 @@ def sync():
     local_play_time = get_play_time_from_content(local_save_content)
 
     if local_play_time > server_play_time:
-        messagebox.showinfo("Info", "本地存档较新，需要上传")
+        if messagebox.askyesno("Info", "本地存档较新，需要上传。是否继续？"):
+            force_upload()
     elif local_play_time < server_play_time:
-        messagebox.showinfo("Info", "服务器存档较新，需要覆盖本地存档")
+        if messagebox.askyesno("Info", "服务器存档较新，需要覆盖本地存档。是否继续？"):
+            force_download()
     else:
         messagebox.showinfo("Info", "无需任何操作")
 
